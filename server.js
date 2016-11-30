@@ -34,6 +34,15 @@ slapp.message('help', ['mention', 'direct_message'], (msg) => {
   msg.say(HELP_TEXT)
 })
 
+// Listen for times
+slapp
+  .message('^.*', ['direct_mention', 'direct_message'], (msg, text) => {
+    msg
+      .say(`${text}, You typed something.`)
+      // sends next event from user to this route, passing along state
+      // .route('how-are-you', { greeting: text })
+  })
+
 // "Conversation" flow that tracks state - kicks off when user says hi, hello or hey
 slapp
   .message('^(hi|hello|hey)$', ['direct_mention', 'direct_message'], (msg, text) => {
