@@ -39,8 +39,9 @@ slapp.message('help', ['mention', 'direct_message'], (msg) => {
 slapp
   .message('^.*', ['direct_mention', 'direct_message'], (msg, text) => {
     msg
-      .say(`Right back atchya ${text}`);
-      console.log(`Date at: ${chrono.parseDate('12:30pm')}`);
+      .say(`Right back atchya ${text}`)
+      .say(`Date at: ${chrono.parseDate(text)}`)
+      // console.log(`Date at: ${chrono.parseDate('12:30pm')}`);
       // console.log(msg);
       // console.log(text);
       // console.log(chrono.parseDate(msg.body.event.text));
