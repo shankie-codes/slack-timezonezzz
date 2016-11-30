@@ -1,19 +1,20 @@
 'use strict'
 
-const express = require('express')
-const Slapp = require('slapp')
-const ConvoStore = require('slapp-convo-beepboop')
-const Context = require('slapp-context-beepboop')
+const express = require('express');
+const Slapp = require('slapp');
+const ConvoStore = require('slapp-convo-beepboop');
+const Context = require('slapp-context-beepboop');
+const chrono = require('chrono-node');
 
 // use `PORT` env var on Beep Boop - default to 3000 locally
-var port = process.env.PORT || 3000
+var port = process.env.PORT || 3000;
 
 var slapp = Slapp({
   // Beep Boop sets the SLACK_VERIFY_TOKEN env var
   verify_token: process.env.SLACK_VERIFY_TOKEN,
   convo_store: ConvoStore(),
   context: Context()
-})
+});
 
 
 var HELP_TEXT = `
@@ -38,7 +39,7 @@ slapp.message('help', ['mention', 'direct_message'], (msg) => {
 slapp
   .message('^.*', ['direct_mention', 'direct_message'], (msg, text) => {
     msg
-      .say(`${text}, You typed something.`)
+      .say(chrono.parseDate(text));
       // sends next event from user to this route, passing along state
       // .route('how-are-you', { greeting: text })
   })
