@@ -39,10 +39,10 @@ slapp.message('help', ['mention', 'direct_message'], (msg) => {
 slapp
   .message('^.*', ['direct_mention', 'direct_message'], (msg, text) => {
     msg
-      .say('got it');
-      console.log(msg);
-      console.log(text);
-      console.log(chrono.parseDate(msg));
+      .say(chrono.parseDate(msg.body.event.text));
+      // console.log(msg);
+      // console.log(text);
+      // console.log(chrono.parseDate(msg.body.event.text));
       // sends next event from user to this route, passing along state
       // .route('how-are-you', { greeting: text })
   })
