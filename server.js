@@ -25,7 +25,7 @@ I will respond to the following messages:
 \`<type-any-other-text>\` - to demonstrate a random emoticon response, some of the time :wink:.
 \`attachment\` - to see a Slack attachment message.
 `
-console.log(`Slack token: ${process.env.SLACK_TOKEN}`);
+console.log(`Env vars: ${process.env}`);
 
 //*********************************************
 // Setup different handlers for messages
