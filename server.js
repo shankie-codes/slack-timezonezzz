@@ -25,6 +25,7 @@ I will respond to the following messages:
 \`<type-any-other-text>\` - to demonstrate a random emoticon response, some of the time :wink:.
 \`attachment\` - to see a Slack attachment message.
 `
+console.log(process.env.SLACK_VERIFY_TOKEN);
 
 //*********************************************
 // Setup different handlers for messages
@@ -40,9 +41,10 @@ slapp
   .message('^.*', ['direct_mention', 'direct_message'], (msg, text) => {
     msg
       .say(`Right back atchya ${text}`)
-      .say(`Date at: ${chrono.parseDate(text).results[0].start.date()}`)
+      // .say(`Date at: ${chrono.parse(text)[0].start.date()}`)
       // console.log(`Date at: ${chrono.parseDate('12:30pm')}`);
-      // console.log(msg);
+      // console.log(chrono.parse(text));
+      console.log(msg);
       // console.log(text);
       // console.log(chrono.parseDate(msg.body.event.text));
       // sends next event from user to this route, passing along state
