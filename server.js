@@ -5,6 +5,8 @@ const Slapp = require('slapp');
 const ConvoStore = require('slapp-convo-beepboop');
 const Context = require('slapp-context-beepboop');
 const chrono = require('chrono-node');
+const request = require('superagent');
+const _ = require('lodash');
 
 // use `PORT` env var on Beep Boop - default to 3000 locally
 var port = process.env.PORT || 3000;
@@ -25,7 +27,6 @@ I will respond to the following messages:
 \`<type-any-other-text>\` - to demonstrate a random emoticon response, some of the time :wink:.
 \`attachment\` - to see a Slack attachment message.
 `
-console.log(`Env vars: ${JSON.stringify(process.env, null, 2)}`);
 
 //*********************************************
 // Setup different handlers for messages
@@ -39,74 +40,43 @@ slapp.message('help', ['mention', 'direct_message'], (msg) => {
 // Listen for times
 slapp
   .message('^.*', ['direct_mention', 'direct_message'], (msg, text) => {
-    msg
-      .say(`Right back atchya ${text}`)
+
+    // Get the timezeones that are in use
+    request
+      .get(`https://slack.com/api/users.list?token=${msg.meta.bot_token}`)
+      .end(function(err, res){
+        if (err){
+          return err;
+        }
+        else{
+          //We got the users list
+          //Compose an array of timezones based on the tz prop of all real users
+          let timezones = res.body.members.map((member) => {
+            if (!member.is_bot) {
+              return ({
+                tz: member.tz,
+                tz_offset: member.tz_offset,
+              });
+            }
+          })
+          timezones = timezones.filter((timezone) => timezone != {} && timezone != null);
+          timezones = _.uniqBy(timezones, 'tz');
+          msg.say(`\`\`\`${JSON.stringify(timezones, null, 2)}\`\`\``);
+        }
+      });
+
+
+    // msg
+    //   .say(`Right back atchya ${text}`)
       // .say(`Date at: ${chrono.parse(text)[0].start.date()}`)
       // console.log(`Date at: ${chrono.parseDate('12:30pm')}`);
       // console.log(chrono.parse(text));
-      console.log(msg);
+      // console.log(msg.meta.bot_token);
       // console.log(text);
       // console.log(chrono.parseDate(msg.body.event.text));
       // sends next event from user to this route, passing along state
       // .route('how-are-you', { greeting: text })
   })
-
-// "Conversation" flow that tracks state - kicks off when user says hi, hello or hey
-slapp
-  .message('^(hi|hello|hey)$', ['direct_mention', 'direct_message'], (msg, text) => {
-    msg
-      .say(`${text}, how are you?`)
-      // sends next event from user to this route, passing along state
-      .route('how-are-you', { greeting: text })
-  })
-  .route('how-are-you', (msg, state) => {
-    var text = (msg.body.event && msg.body.event.text) || ''
-
-    // user may not have typed text as their next action, ask again and re-route
-    if (!text) {
-      return msg
-        .say("Whoops, I'm still waiting to hear how you're doing.")
-        .say('How are you?')
-        .route('how-are-you', state)
-    }
-
-    // add their response to state
-    state.status = text
-
-    msg
-      .say(`Ok then. What's your favorite color?`)
-      .route('color', state)
-  })
-  .route('color', (msg, state) => {
-    var text = (msg.body.event && msg.body.event.text) || ''
-
-    // user may not have typed text as their next action, ask again and re-route
-    if (!text) {
-      return msg
-        .say("I'm eagerly awaiting to hear your favorite color.")
-        .route('color', state)
-    }
-
-    // add their response to state
-    state.color = text
-
-    msg
-      .say('Thanks for sharing.')
-      .say(`Here's what you've told me so far: \`\`\`${JSON.stringify(state)}\`\`\``)
-    // At this point, since we don't route anywhere, the "conversation" is over
-  })
-
-// Can use a regex as well
-slapp.message(/^(thanks|thank you)/i, ['mention', 'direct_message'], (msg) => {
-  // You can provide a list of responses, and a random one will be chosen
-  // You can also include slack emoji in your responses
-  msg.say([
-    "You're welcome :smile:",
-    'You bet',
-    ':+1: Of course',
-    'Anytime :sun_with_face: :full_moon_with_face:'
-  ])
-})
 
 // demonstrate returning an attachment...
 slapp.message('attachment', ['mention', 'direct_message'], (msg) => {

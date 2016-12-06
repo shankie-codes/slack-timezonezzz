@@ -19,10 +19,12 @@
   "dependencies": {
     "chrono-node": "^1.2.5",
     "express": "^4.14.0",
+    "lodash": "^4.17.2",
     "nodemon": "^1.11.0",
     "slapp": "^1.2.0",
     "slapp-context-beepboop": "^1.1.0",
     "slapp-convo-beepboop": "^1.0.0",
-    "standard": "^8.4.0"
+    "standard": "^8.4.0",
+    "superagent": "^3.1.0"
   }
 }
