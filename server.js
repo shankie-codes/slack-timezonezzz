@@ -7,6 +7,7 @@ const Context = require('slapp-context-beepboop');
 const chrono = require('chrono-node');
 const request = require('superagent');
 const _ = require('lodash');
+const moment = require('moment');
 
 // use `PORT` env var on Beep Boop - default to 3000 locally
 var port = process.env.PORT || 3000;
@@ -28,6 +29,12 @@ I will respond to the following messages:
 \`attachment\` - to see a Slack attachment message.
 `
 
+const getEmojiFromTime = function(time) {
+  let hour = moment(time).format('h');
+  hour = hour == 0 ? 12 : hour;
+  return `:clock${hour}:`;
+}
+
 //*********************************************
 // Setup different handlers for messages
 //*********************************************
@@ -39,31 +46,50 @@ slapp.message('help', ['mention', 'direct_message'], (msg) => {
 
 // Listen for times
 slapp
-  .message('^.*', ['direct_mention', 'direct_message'], (msg, text) => {
-
-    // Get the timezeones that are in use
-    request
-      .get(`https://slack.com/api/users.list?token=${msg.meta.bot_token}`)
-      .end(function(err, res){
-        if (err){
-          return err;
-        }
-        else{
-          //We got the users list
-          //Compose an array of timezones based on the tz prop of all real users
-          let timezones = res.body.members.map((member) => {
-            if (!member.is_bot) {
-              return ({
-                tz: member.tz,
-                tz_offset: member.tz_offset,
+  // .message('^.*', ['mention', 'direct_mention', 'direct_message'], (msg, text) => {
+  .message('^.*', (msg, text) => {
+    let parsedDate = chrono.parseDate(text);
+    if(parsedDate){
+      // Get the Unix time and convert to seconds
+      let parsedTime = parsedDate.getTime() / 1000;
+      // console.log(parsedDate.getTime());
+      // Get the timezeones that are in use
+      request
+        .get(`https://slack.com/api/users.list?token=${msg.meta.bot_token}`)
+        .end(function(err, res){
+          if (err){
+            return err;
+          }
+          else{
+            //We got the users list
+            //Compose an array of timezones based on the tz prop of all real users
+            let timezones = res.body.members
+              .filter((member) => !member.is_bot && member.tz)
+              .map((member) => {
+                return ({
+                  tz: member.tz,
+                  tz_offset: member.tz_offset,
+                  tz_label: member.tz_label,
+                  offset_timestamp: parsedTime + member.tz_offset,
+                  offset_time: moment((parsedTime + member.tz_offset)*1000).format('HH:mm'),
+                  offset_date: moment((parsedTime + member.tz_offset)*1000).format('dddd D MMM'),
+                  emoji: getEmojiFromTime((parsedTime + member.tz_offset)*1000)
               });
-            }
-          })
-          timezones = timezones.filter((timezone) => timezone != {} && timezone != null);
-          timezones = _.uniqBy(timezones, 'tz');
-          msg.say(`\`\`\`${JSON.stringify(timezones, null, 2)}\`\`\``);
-        }
-      });
+            })
+
+            // Get unique entries
+            timezones = _.uniqBy(timezones, 'tz');
+
+            // Compose a string
+            let message = "";
+            timezones.forEach((timezone) => {
+              message += `${timezone.emoji} *${timezone.offset_time}* on ${timezone.offset_date} \`${timezone.tz_label}\`\n`;
+            });
+
+            msg.say(message);
+          }
+        });
+    }
 
 
     // msg
