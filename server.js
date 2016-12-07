@@ -46,8 +46,8 @@ slapp.message('help', ['mention', 'direct_message'], (msg) => {
 
 // Listen for times
 slapp
-  // .message('^.*', ['mention', 'direct_mention', 'direct_message'], (msg, text) => {
-  .message('^.*', (msg, text) => {
+  .message('^.*', ['mention', 'direct_mention', 'direct_message'], (msg, text) => {
+  // .message('^.*', (msg, text) => {
     let parsedDate = chrono.parseDate(text);
     if(parsedDate){
       // Get the Unix time and convert to seconds
