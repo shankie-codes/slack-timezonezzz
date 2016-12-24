@@ -52,11 +52,11 @@ slapp
       // Get the Unix time and convert to seconds
       let parsedTime = parsedDate.getTime() / 1000;
 
-      console.log(msg.body.event);
-      
+      // console.log(msg.body.event);
+
       // Get the users in this channel
       request
-      .get(`https://slack.com/api/channels.info?channel=${msg.body.event.channel_id}&token=${msg.meta.bot_token}`)
+      .get(`https://slack.com/api/channels.info?channel=${msg.body.event.channel}&token=${msg.meta.bot_token}`)
       .end((err, res) =>{
         const usersInChannel = res.channel.members;
         console.log(usersInChannel)
