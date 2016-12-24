@@ -46,10 +46,12 @@ slapp.message('help', ['mention', 'direct_message'], (msg) => {
 
 // Listen for times
 slapp
-  .message('^.*', ['mention', 'direct_mention', 'direct_message'], (msg, text) => {
+  // .message('^.*', ['mention', 'direct_mention', 'direct_message'], (msg, text) => {
+  .message('^.*', (msg, text) => { // Listen for all messages so that we can pick up mentions to @zzz in private messages.
   // .message('^.*', (msg, text) => {
+    console.log(msg);
     let parsedDate = chrono.parseDate(text);
-    if(parsedDate){
+    if(parsedDate){ // Check if we both have a date and mention
       // Get the Unix time and convert to seconds
       let parsedTime = parsedDate.getTime() / 1000;
       // console.log(parsedDate.getTime());
