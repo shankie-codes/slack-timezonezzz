@@ -52,12 +52,11 @@ slapp
       // Get the Unix time and convert to seconds
       let parsedTime = parsedDate.getTime() / 1000;
 
-      console.log(`https://slack.com/api/channels.info?channel=${msg.body.event.channel}&token=${msg.meta.bot_token}`);
-
       // Get the users in this channel
       request
       .get(`https://slack.com/api/channels.info?channel=${msg.body.event.channel}&token=${msg.meta.bot_token}`)
       .end((err, res) =>{
+        console.log(err, res):
         const usersInChannel = res.channel.members;
         console.log(usersInChannel)
         // Get the timezeones that are in use in this channel
