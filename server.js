@@ -56,7 +56,7 @@ slapp
       request
       .get(`https://slack.com/api/channels.info?channel=${msg.body.event.channel}&token=${msg.meta.bot_token}`)
       .end((err, res) =>{
-        console.log(err, res):
+        console.log(err, res);
         const usersInChannel = res.channel.members;
         console.log(usersInChannel)
         // Get the timezeones that are in use in this channel
