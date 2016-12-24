@@ -46,18 +46,19 @@ slapp.message('help', ['mention', 'direct_message'], (msg) => {
 
 // Listen for times
 slapp
-  .message('^.*', ['mention', 'direct_mention', 'direct_message'], async (msg, text) => {
+  .message('^.*', ['mention', 'direct_mention', 'direct_message'], (msg, text) => {
     let parsedDate = chrono.parseDate(text);
     if(parsedDate){
       // Get the Unix time and convert to seconds
       let parsedTime = parsedDate.getTime() / 1000;
 
       // Get the users in this channel
-      let usersInChannel = await request.get(`https://slack.com/api/channels.info?channel=${msg.body.event.item.channel}&token=${msg.meta.bot_token}`);
-      usersInChannel = usersInChannel.channel.members;
-
-      // Get the timezeones that are in use in this channel
       request
+      .get(`https://slack.com/api/channels.info?channel=${msg.body.event.item.channel}&token=${msg.meta.bot_token}`)
+      .end((err,res) =>{
+        const usersInChannel = res.channel.members;
+        // Get the timezeones that are in use in this channel
+        request
         .get(`https://slack.com/api/users.list?token=${msg.meta.bot_token}`)
         .end(function(err, res){
           if (err){
@@ -91,6 +92,7 @@ slapp
 
             msg.say(message);
           }
+        });
       });
     }
   })
